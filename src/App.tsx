@@ -4,7 +4,7 @@ import './App.css';
 
 const App: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [imageId, setImageId] = useState<number | null>(null);
+  const [imageId, setImageId] = useState<number[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -29,8 +29,8 @@ const App: React.FC = () => {
     });
 
     alert(response.data.message);
-    //　仮IDに1を配置
-    setImageId(1);
+    //　アップロードされた画像のIDを配列に追加
+    setImageId((prevIds) => [...prevIds, response.data.photo_id]);
    }  catch (error) {
     console.error("Error uploading file:", error);
     alert("Failed to upload photo");
@@ -43,18 +43,23 @@ const App: React.FC = () => {
       <input type="file" onChange={handleFileChange} />
       <button onClick={handleUpload}>Upload</button>
 
-      {
-        imageId && (
+      <div className="image-gallery">
+        {imageId.length > 0 && (
           <div>
-            <h2>Uploaded Photo:</h2>
-            <img
-              src={`http://localhost:8080/photo/${imageId}`}
-              alt="Uploaded"
-              width="400"
-            />
+            <h2>Uploaded Photos:</h2>
+            <div className="photos-container">
+              {imageId.map((id) => (
+                <img
+                  key={id}
+                  src={`http://localhost:8080/photo/${id}`}
+                  alt={`Uploaded ${id}`}
+                  width="200"
+                />
+              ))}
+            </div>
           </div>
-        )
-      }
+        )}
+      </div>
     </div>
   );
 };
